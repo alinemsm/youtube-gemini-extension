@@ -1,95 +1,23 @@
-// Import API key from config file
-// Make sure config.js is loaded before popup.js in your HTML
-const GEMINI_API_KEY = window.config ? window.config.GEMINI_API_KEY : '';
-
 // Your custom prompt template
 const VIDEO_ANALYSIS_PROMPT = `
+Action: Create a hyperlinked, timestamped guide for the YouTube video provided.
 
-Analyze the video at the URL below and provide real information from it.
+Video URL:
 {URL}
 
-Create a hyperlinked, timestamped guide with:
-- The actual video title
-- Real key points from the video with accurate timestamps
-- Actual references mentioned in the video
+Focus of the Guide:
+[e.g., Key tips and tricks, Main arguments, Step-by-step instructions, Core concepts]
 
 Formatting Instructions:
-- Each major point should be a separate section with a clear heading
-- Include a detailed summary for each point
-- Each point must include a clickable timestamp (e.g., [mm:ss])
-- Add a "References" section listing all mentioned books, websites, and people
-- Use Markdown for formatting
-
-If you cannot access the video, please say so directly instead of providing a template.
+- The output should be a structured guide, not a simple paragraph.
+- Each major point from the video should be a separate section with a clear heading.
+- Include a detailed summary for each point.
+- Each point must include a clickable timestamp (e.g., [mm:ss]) that links to the exact moment in the video.
+- At the end of the guide, add a section titled "References".
+- This "References" section should list all mentioned books, websites, and people, with a timestamp for each reference if available.
+- Use Markdown for formatting (bolding, lists, etc.) to improve readability.
 `;
 
-// Function to analyze with Gemini API
-async function analyzeWithGemini(url) {
-  // Clean the URL - remove any tracking parameters but keep the video ID
-  const cleanUrl = url.split('&')[0]; // This keeps only the base URL with video ID
-  
-  console.log('Original URL:', url);
-  console.log('Clean URL:', cleanUrl);
-  
-  // Replace {URL} with the actual URL
-  const prompt = VIDEO_ANALYSIS_PROMPT.replace('{URL}', cleanUrl);
-  
-  console.log('Final prompt being sent:', prompt);
-  
-  try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }]
-      })
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      console.error('API Error:', error);
-      throw new Error(`API returned ${response.status}: ${error}`);
-    }
-
-    const data = await response.json();
-    
-    if (!data.candidates || !data.candidates[0]) {
-      throw new Error('No response generated');
-    }
-    
-    return data.candidates[0].content.parts[0].text;
-  } catch (error) {
-    console.error('Gemini API Error:', error);
-    throw error;
-  }
-}
-
-// Function to display results
-function displayResults(text) {
-  const statusDiv = document.getElementById('status');
-  const resultDiv = document.getElementById('result');
-  
-  statusDiv.textContent = 'Analysis complete!';
-  statusDiv.classList.remove('error');
-  
-  // Format the response with basic markdown support
-  const formattedText = text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>')
-    .replace(/•/g, '&bull;')
-    .replace(/\[(\d+:\d+)\]/g, '<a href="#" onclick="return false;">[$1]</a>'); // Format timestamps
-  
-  resultDiv.innerHTML = formattedText;
-  resultDiv.classList.add('show');
-}
-
-// Main event listener
 document.addEventListener('DOMContentLoaded', function() {
   const analyzeBtn = document.getElementById('analyzeBtn');
   const statusDiv = document.getElementById('status');
@@ -97,59 +25,75 @@ document.addEventListener('DOMContentLoaded', function() {
 
   analyzeBtn.addEventListener('click', async function() {
     try {
-      // Get current tab - ensure we're getting the active tab
-      const [tab] = await chrome.tabs.query({ 
-        active: true, 
-        currentWindow: true,
-        url: "*://www.youtube.com/*"  // Specifically look for YouTube tabs
-      });
+      // Get current tab
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       
-      console.log('Tab info:', tab);
-      
-      // Check if we got a tab
-      if (!tab) {
-        const [anyTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        console.log('Current tab URL:', anyTab?.url);
+      // Check if it's a YouTube URL
+      if (!tab.url || !tab.url.includes('youtube.com/watch')) {
         statusDiv.textContent = 'Please navigate to a YouTube video';
         statusDiv.classList.add('error');
         return;
       }
-      
-      // Check if it's a YouTube video URL
-      if (!tab.url.includes('youtube.com/watch?v=')) {
-        statusDiv.textContent = 'Please navigate to a YouTube video (not a playlist or channel)';
-        statusDiv.classList.add('error');
-        return;
-      }
+
+      // Extract video title for better UX
+      const videoTitle = tab.title.replace(' - YouTube', '');
 
       // Update UI
       analyzeBtn.disabled = true;
-      statusDiv.textContent = 'Analyzing video...';
+      statusDiv.textContent = 'Preparing prompt...';
       statusDiv.classList.remove('error');
-      resultDiv.classList.remove('show');
-      resultDiv.innerHTML = ''; // Clear previous results
 
-      // Send to Gemini
-      const response = await analyzeWithGemini(tab.url);
+      // Create the prompt with the current URL
+      const prompt = VIDEO_ANALYSIS_PROMPT.replace('{URL}', tab.url);
       
-      // Display results
-      displayResults(response);
+      // Copy prompt to clipboard
+      await navigator.clipboard.writeText(prompt);
+      
+      // Open Gemini in a new tab
+      chrome.tabs.create({ url: 'https://gemini.google.com/' });
+      
+      // Update status with clear instructions
+      statusDiv.innerHTML = `
+        <div style="background: #e8f5e9; padding: 10px; border-radius: 4px; margin-bottom: 10px;">
+          <strong style="color: #2e7d32;">✓ Prompt copied to clipboard!</strong>
+        </div>
+        
+        <strong>Next steps:</strong>
+        <ol style="margin: 10px 0; padding-left: 20px; text-align: left;">
+          <li>Gemini is now open in a new tab</li>
+          <li>Click in the message box</li>
+          <li>Press <kbd style="background: #eee; padding: 2px 6px; border-radius: 3px;">Ctrl+V</kbd> (or <kbd style="background: #eee; padding: 2px 6px; border-radius: 3px;">Cmd+V</kbd> on Mac)</li>
+          <li>Press <kbd style="background: #eee; padding: 2px 6px; border-radius: 3px;">Enter</kbd> to analyze</li>
+        </ol>
+        
+        <div style="background: #f5f5f5; padding: 8px; border-radius: 4px; font-size: 12px;">
+          <strong>Video:</strong> ${videoTitle}<br>
+          <strong>URL:</strong> <span style="color: #666;">${tab.url.substring(0, 50)}...</span>
+        </div>
+      `;
+      
+      // Add a "Copy Again" button
+      setTimeout(() => {
+        const copyAgainBtn = document.createElement('button');
+        copyAgainBtn.textContent = 'Copy Prompt Again';
+        copyAgainBtn.style.cssText = 'margin-top: 10px; padding: 8px 16px; background: #fff; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;';
+        copyAgainBtn.onclick = async () => {
+          await navigator.clipboard.writeText(prompt);
+          copyAgainBtn.textContent = '✓ Copied!';
+          setTimeout(() => {
+            copyAgainBtn.textContent = 'Copy Prompt Again';
+          }, 2000);
+        };
+        statusDiv.appendChild(copyAgainBtn);
+      }, 100);
       
     } catch (error) {
       console.error('Error:', error);
       statusDiv.textContent = 'Error: ' + error.message;
       statusDiv.classList.add('error');
-      
-      // Check for common issues
-      if (error.message.includes('401')) {
-        statusDiv.textContent = 'Error: Invalid API key. Please check your Gemini API key.';
-      } else if (error.message.includes('403')) {
-        statusDiv.textContent = 'Error: API key lacks permission. Enable Gemini API in Google Cloud Console.';
-      } else if (error.message.includes('429')) {
-        statusDiv.textContent = 'Error: Rate limit exceeded. Please try again later.';
-      }
     } finally {
       analyzeBtn.disabled = false;
+      analyzeBtn.textContent = 'Send Another Video';
     }
   });
 });
