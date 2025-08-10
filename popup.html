@@ -2,15 +2,47 @@
 <html>
 <head>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
-    <h2>YouTube to Gemini</h2>
-    <div id="status">Ready to analyze...</div>
-    <button id="analyzeBtn">Send to Gemini</button>
-    <div id="result" class="result-container"></div>
-    <div class="info">
-      <small>This will open Gemini in a new tab with your custom prompt</small>
+    <!-- Header -->
+    <div class="header">
+      <h1>Geminize</h1>
+      <div class="subtitle">AI-powered video analysis</div>
+    </div>
+    
+    <!-- Instruction -->
+    <div class="instruction">
+      <p>Click below to copy the prompt and open Gemini.</p>
+    </div>
+    
+    <!-- Main Action -->
+    <div class="action-container">
+      <button id="analyzeBtn" class="main-btn">
+        Copy & Open in Gemini
+      </button>
+    </div>
+    
+    <!-- Secondary Note -->
+    <div class="secondary-note">
+      <p>Paste the prompt in Gemini and press Enter.</p>
+    </div>
+    
+    <!-- Hidden Prompt Display -->
+    <div id="promptDisplay" class="prompt-display" style="display: none;">
+      <div class="prompt-header">
+        <div class="prompt-title">
+          <span>Your Custom Prompt</span>
+        </div>
+        <button id="copyBtn" class="copy-btn">
+          <span>Copy</span>
+        </button>
+      </div>
+      <textarea id="promptText" readonly placeholder="Your generated prompt will appear here..."></textarea>
+      <button id="openGeminiBtn" class="gemini-btn">
+        <span>Open in Gemini</span>
+      </button>
     </div>
   </div>
   <script src="popup.js"></script>

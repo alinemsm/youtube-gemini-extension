@@ -1,58 +1,201 @@
+/* Clean Gemini-focused design for YouTube to Gemini Extension */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-  width: 400px;
-  min-height: 200px;
-  padding: 15px;
-  font-family: Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f8fafc;
+  min-height: 100vh;
+  color: #1e293b;
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  width: 600px;
+  min-height: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
 }
 
-h2 {
-  margin: 0;
-  color: #333;
+/* Header Section */
+.header {
+  background: linear-gradient(135deg, #4796E3 0%, #4E26E2 100%);
+  color: white;
+  padding: 32px 24px;
+  text-align: center;
 }
 
-#status {
-  color: #666;
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: 16px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+/* Instruction */
+.instruction {
+  padding: 24px;
+  text-align: center;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.instruction p {
   font-size: 14px;
-  line-height: 1.5;
+  color: #64748b;
+  font-weight: 400;
+  margin: 0;
 }
 
-#status strong {
-  color: #0d9b3a;
+/* Main Action */
+.action-container {
+  padding: 32px 24px;
+  background: white;
 }
 
-#analyzeBtn {
-  background-color: #4285f4;
+.main-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #4796E3 0%, #4E26E2 100%);
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
+  padding: 16px 24px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(71, 150, 227, 0.3);
 }
 
-#analyzeBtn:hover {
-  background-color: #357ae8;
+.main-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(71, 150, 227, 0.4);
 }
 
-#analyzeBtn:disabled {
-  background-color: #ccc;
+.main-btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
-.info {
+/* Secondary Note */
+.secondary-note {
+  padding: 16px 24px 24px 24px;
   text-align: center;
-  color: #999;
-  font-size: 12px;
-  margin-top: 10px;
+  background: white;
 }
 
-.error {
-  color: #d93025;
+.secondary-note p {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 400;
+  margin: 0;
+}
+
+/* Hidden Prompt Display */
+.prompt-display {
+  margin: 24px;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.prompt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.prompt-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #4E26E2;
+  font-size: 16px;
+}
+
+.copy-btn {
+  background: #4E26E2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  background: #3b1bb8;
+  transform: translateY(-1px);
+}
+
+#promptText {
+  width: 100%;
+  height: 180px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: 'Inter', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+  background: white;
+  color: #1e293b;
+  transition: border-color 0.2s ease;
+}
+
+#promptText:focus {
+  outline: none;
+  border-color: #4E26E2;
+  box-shadow: 0 0 0 3px rgba(78, 38, 226, 0.1);
+}
+
+.gemini-btn {
+  width: 100%;
+  margin-top: 16px;
+  background: #4E26E2;
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.gemini-btn:hover {
+  background: #3b1bb8;
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .container {
+    width: 100%;
+    border-radius: 0;
+  }
 }

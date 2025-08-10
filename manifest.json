@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "YouTube to Gemini Analyzer",
+  "name": "Geminize",
   "version": "1.0",
   "description": "Send YouTube videos to Gemini for analysis",
   "permissions": [
@@ -9,6 +9,12 @@
     "clipboardWrite"
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": "icon19.png"
+  },
+  "icons": {
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   }
 }
